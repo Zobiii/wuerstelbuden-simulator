@@ -10,11 +10,14 @@ from PyQt6.QtGui import QPixmap, QIcon
 from PyQt6.QtCore import QSize, Qt
 import logging, sys
 from utils.image_tools import create_rounded_framed_pixmap
+from ui.screens.weather_screen import WeatherMenu
+from logic.weather_system import WeatherSystem
 
 
 class MainWindow(QWidget):
     def __init__(self):
         super().__init__()
+        self.weather_system = WeatherSystem()
         self.setWindowTitle("Hauptmenü")
         self.setFixedSize(600, 400)
 
@@ -82,6 +85,8 @@ class MainWindow(QWidget):
 
     def on_weather(self):
         logging.info("Wettervorhersage geöffnet")
+        self.weather_menu = WeatherMenu(self.weather_system)
+        self.weather_menu.show()
 
     def on_storage(self):
         logging.info("Lager geöffnet")
