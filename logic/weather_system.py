@@ -1,4 +1,4 @@
-import random
+import random, logging
 from datetime import datetime, timedelta
 
 
@@ -6,6 +6,7 @@ class WeatherSystem:
     WEATHER_TYPES = ["Sonne", "Bewölkt", "Regen", "Sturm", "Heiß", "Kalt"]
 
     def __init__(self):
+        logging.info("Initialisiere Wettervorhersage")
         self.today = datetime.today().date()
         self.forecast = self.generate_weekly_forecast(self.today)
 
@@ -15,14 +16,17 @@ class WeatherSystem:
             day = start_date + timedelta(days=i)
             weather = random.choice(self.WEATHER_TYPES)
             forecast.append({"date": day, "weather": weather})
+            logging.info(f"Wetter für Tag: {day} {weather}")
         return forecast
 
     def advance_day(self):
+
         self.today += timedelta(days=1)
         self.forecast.pop(0)
         next_day = self.today + timedelta(days=6)
         new_weather = random.choice(self.WEATHER_TYPES)
         self.forecast.append({"date": next_day, "weather": new_weather})
+        logging.info(f"Generiere Wetter für den Tag: {next_day} {new_weather}")
 
     def get_forecast(self):
         return self.forecast.copy()

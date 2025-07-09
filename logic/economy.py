@@ -1,3 +1,6 @@
+import math
+
+
 class Economy:
     def __init__(self, starting_money=100.0):
         self.balance = starting_money
