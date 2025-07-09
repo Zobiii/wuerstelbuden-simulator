@@ -3,7 +3,6 @@ import logging, sys
 from utils.logger import setup_logger
 from ui.start_screen import StartupScreen
 from ui.main_menu import MainWindow
-from logic.weather_system import WeatherSystem
 
 
 def show_main_menu():
@@ -11,7 +10,7 @@ def show_main_menu():
     start_screen.close()
 
     global main_window
-    main_window = MainWindow(weather_system=weather_system)
+    main_window = MainWindow()
     main_window.show()
 
 
@@ -23,8 +22,6 @@ if __name__ == "__main__":
 
     global start_screen
     start_screen = StartupScreen(start_callback=show_main_menu)
-
-    weather_system = WeatherSystem()
 
     start_screen.show()
 

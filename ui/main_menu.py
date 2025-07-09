@@ -11,15 +11,20 @@ from PyQt6.QtCore import QSize, Qt
 import logging, sys
 from utils.image_tools import create_rounded_framed_pixmap
 from ui.screens.weather_screen import WeatherMenu
+from logic.weather_system import WeatherSystem
 from ui.screens.storage_screen import StorageScreen
 from logic.storage_system import StorageSystem
+from ui.screens.supermarket_screen import SupermarketScreen
+from logic.supermarket import Supermarket
 
 
 class MainWindow(QWidget):
-    def __init__(self, weather_system):
+    def __init__(self):
         super().__init__()
 
-        self.weather_system = weather_system
+        self.weather_system = WeatherSystem()
+
+        self.supermarket = Supermarket()
 
         self.storage_system = StorageSystem()
         self.storage_system.add_item("Würstel", 10, 3)
@@ -103,6 +108,10 @@ class MainWindow(QWidget):
 
     def on_supermarket(self):
         logging.info("Supermarkt geöffnet")
+        self.supermarket_screen = SupermarketScreen(
+            self.supermarket, self.storage_system
+        )
+        self.supermarket_screen.show()
 
     def on_bank(self):
         logging.info("Bank geöffnet")
