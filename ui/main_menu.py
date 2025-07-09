@@ -16,6 +16,7 @@ from ui.screens.storage_screen import StorageScreen
 from logic.storage_system import StorageSystem
 from ui.screens.supermarket_screen import SupermarketScreen
 from logic.supermarket import Supermarket
+from logic.economy import Economy
 
 
 class MainWindow(QWidget):
@@ -26,10 +27,9 @@ class MainWindow(QWidget):
 
         self.supermarket = Supermarket()
 
+        self.economy = Economy()
+
         self.storage_system = StorageSystem()
-        self.storage_system.add_item("Würstel", 10, 3)
-        self.storage_system.add_item("Semmeln", 8, 2)
-        self.storage_system.add_item("Senf", 5, 10)
 
         self.setWindowTitle("Hauptmenü")
         self.setFixedSize(600, 400)
@@ -109,7 +109,7 @@ class MainWindow(QWidget):
     def on_supermarket(self):
         logging.info("Supermarkt geöffnet")
         self.supermarket_screen = SupermarketScreen(
-            self.supermarket, self.storage_system
+            self.supermarket, self.storage_system, self.economy
         )
         self.supermarket_screen.show()
 

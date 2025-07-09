@@ -10,10 +10,11 @@ from PyQt6.QtCore import Qt
 
 
 class SupermarketScreen(QWidget):
-    def __init__(self, supermarket, storage_system):
+    def __init__(self, supermarket, storage_system, economy):
         super().__init__()
         self.supermarket = supermarket
         self.storage = storage_system
+        self.economy = economy
 
         self.setWindowTitle("Supermarkt")
         self.setFixedSize(400, 300)
@@ -47,17 +48,30 @@ class SupermarketScreen(QWidget):
         self.buy_button.clicked.connect(self.buy_items)
         self.layout.addWidget(self.buy_button)
 
+        self.balance_label = QLabel(f"💰 Guthaben: {self.economy.get_balance():.2f} €")
+        self.layout.insertWidget(1, self.balance_label)
+
         self.setLayout(self.layout)
 
     def buy_items(self):
+        total_cost = 0
         for item, spinbox in self.spinboxes.items():
             qty = spinbox.value()
-            if qty > 0:
-                # einfache Haltbarkeitslogik
-                if item == "Würstel":
-                    self.storage.add_item(item, qty, 3)
-                elif item == "Semmeln":
-                    self.storage.add_item(item, qty, 2)
-                elif item == "Senf":
-                    self.storage.add_item(item, qty, 10)
-                spinbox.setValue(0)
+            price = self.prices[item]
+            total_cost += qty * price
+
+        if self.economy.spend(total_cost):
+            for item, spinbox in self.spinboxes.items():
+                qty = spinbox.value()
+                if qty > 0:
+                    # einfache Haltbarkeitslogik
+                    if item == "Würstel":
+                        self.storage.add_item(item, qty, 3)
+                    elif item == "Semmeln":
+                        self.storage.add_item(item, qty, 2)
+                    elif item == "Senf":
+                        self.storage.add_item(item, qty, 10)
+                    spinbox.setValue(0)
+            self.balance_label.setText(f"Guthaben: {self.economy.get_balance():.2f} €")
+        else:
+            self.balance_label.setText("Nicht genügend Geld!")
