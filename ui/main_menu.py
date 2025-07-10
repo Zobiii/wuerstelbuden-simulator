@@ -17,6 +17,7 @@ from logic.storage_system import StorageSystem
 from ui.screens.supermarket_screen import SupermarketScreen
 from logic.supermarket import Supermarket
 from logic.economy import Economy
+from ui.screens.bank_screen import BankScreen
 
 
 class MainWindow(QWidget):
@@ -124,6 +125,8 @@ class MainWindow(QWidget):
 
     def on_bank(self):
         logging.info("Bank geöffnet")
+        self.bank_screen = BankScreen(self.economy)
+        self.bank_screen.show()
 
     def start_day(self):
         logging.info("Tagesbeginn wird gestartet...")
