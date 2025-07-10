@@ -18,6 +18,7 @@ from ui.screens.supermarket_screen import SupermarketScreen
 from logic.supermarket import Supermarket
 from logic.economy import Economy
 from ui.screens.bank_screen import BankScreen
+from logic.customer_logic import CustomerLogic
 
 
 class MainWindow(QWidget):
@@ -31,6 +32,10 @@ class MainWindow(QWidget):
         self.economy = Economy()
 
         self.storage_system = StorageSystem()
+
+        self.customer_logic = CustomerLogic()
+
+        self.prices = {"Würstel": 2.50, "Semmeln": 0.80, "Senf": 0.20}
 
         self.setWindowTitle("Hauptmenü")
         self.setFixedSize(800, 700)
@@ -131,12 +136,21 @@ class MainWindow(QWidget):
     def start_day(self):
         logging.info("Tagesbeginn wird gestartet...")
 
-        wetter = self.weather_system.get_today_weather()
-        logging.info(f"Heutiges Wetter: {wetter}")
+        weather = self.weather_system.get_today_weather()
+        logging.info(f"Heutiges Wetter: {weather}")
 
-        einnahmen = 25.0
-        self.economy.earn(einnahmen)
-        logging.info(f"Umsatz heute: {einnahmen:.2f} €")
+        purchases = self.customer_logic.simulate_day(weather, self.prices)
+        logging.info(f"Kundenkäufe heute: {len(purchases)}")
+
+        verkauferlös = 0.0
+        for item in purchases:
+            if item in self.prices:
+                if self.storage_system.items[item]:
+                    self.storage_system.items[item].pop(0)
+                    verkauferlös += self.prices[item]
+
+        self.economy.earn(verkauferlös)
+        logging.info(f"Umsatz heute: {verkauferlös:.2f} €")
 
         self.weather_system.advance_day()
         self.storage_system.advance_day()
