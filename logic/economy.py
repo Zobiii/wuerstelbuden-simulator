@@ -1,4 +1,4 @@
-import math
+import logging
 
 
 class Economy:
@@ -12,15 +12,18 @@ class Economy:
     def spend(self, amount):
         if self.balance >= amount:
             self.balance -= amount
+            logging.info(f"Geld ausgegeben: {amount:.2f}")
             return True
         return False
 
     def earn(self, amount):
         self.balance += amount
+        logging.info(f"Geld eingenommen: {amount:.2f}")
 
     def take_loan(self, amount):
         self.balance += amount
         self.debt += amount
+        logging.info(f"Kredit aufgenommen: {amount:.2f}")
         return amount
 
     def get_debt(self):

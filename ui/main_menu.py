@@ -19,6 +19,7 @@ from logic.supermarket import Supermarket
 from logic.economy import Economy
 from ui.screens.bank_screen import BankScreen
 from logic.customer_logic import CustomerLogic
+from ui.screens.day_screen import DayScreen
 
 
 class MainWindow(QWidget):
@@ -135,25 +136,11 @@ class MainWindow(QWidget):
 
     def start_day(self):
         logging.info("Tagesbeginn wird gestartet...")
-
-        weather = self.weather_system.get_today_weather()
-        logging.info(f"Heutiges Wetter: {weather}")
-
-        purchases = self.customer_logic.simulate_day(weather, self.prices)
-        logging.info(f"Kundenkäufe heute: {len(purchases)}")
-
-        verkauferlös = 0.0
-        for item in purchases:
-            if item in self.prices:
-                if self.storage_system.items[item]:
-                    self.storage_system.items[item].pop(0)
-                    verkauferlös += self.prices[item]
-
-        self.economy.earn(verkauferlös)
-        logging.info(f"Umsatz heute: {verkauferlös:.2f} €")
-
-        self.weather_system.advance_day()
-        self.storage_system.advance_day()
-        self.supermarket.generate_new_prices()
-
-        logging.info("Tag abgeschlossen")
+        self.day_screen = DayScreen(
+            weather=self.weather_system.get_today_weather(),
+            customer_logic=self.customer_logic,
+            storage=self.storage_system,
+            economy=self.economy,
+            prices=self.prices,
+        )
+        self.day_screen.show()
