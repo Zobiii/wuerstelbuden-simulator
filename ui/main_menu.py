@@ -32,7 +32,7 @@ class MainWindow(QWidget):
         self.storage_system = StorageSystem()
 
         self.setWindowTitle("Hauptmenü")
-        self.setFixedSize(600, 400)
+        self.setFixedSize(800, 700)
 
         layout = QVBoxLayout()
         header = QLabel("Was möchtest du tun?")
@@ -42,8 +42,8 @@ class MainWindow(QWidget):
 
         # Grid Layout für die vier Ecken
         icon_layout = QGridLayout()
-        icon_layout.setSpacing(40)
-        icon_layout.setContentsMargins(50, 50, 50, 50)
+        icon_layout.setSpacing(60)
+        icon_layout.setContentsMargins(60, 30, 60, 30)
 
         # Buttons in den vier Ecken platzieren
         # Oben links
@@ -60,19 +60,28 @@ class MainWindow(QWidget):
                 "Lager", "resources/icons/lager.png", self.on_storage
             ),
             0,
-            1,
+            2,
         )
         # Unten links
         icon_layout.addWidget(
             self.create_icon_button(
                 "Supermarkt", "resources/icons/supermarkt.png", self.on_supermarket
             ),
-            1,
+            2,
             0,
         )
         # Unten rechts
         icon_layout.addWidget(
             self.create_icon_button("Bank", "resources/icons/bank.png", self.on_bank),
+            2,
+            2,
+        )
+
+        # Tag starten Button über die ganze Breite
+        icon_layout.addWidget(
+            self.create_icon_button(
+                "Tag starten", "resources/icons/start.png", self.start_day
+            ),
             1,
             1,
         )
@@ -84,14 +93,14 @@ class MainWindow(QWidget):
         btn = QPushButton()
         pixmap = create_rounded_framed_pixmap(
             image_path,
-            QSize(120, 120),
+            QSize(150, 150),
             radius=16,
             border_color=Qt.GlobalColor.lightGray,
             border_width=4,
         )
         btn.setIcon(QIcon(pixmap))
-        btn.setIconSize(QSize(120, 120))
-        btn.setFixedSize(130, 130)
+        btn.setIconSize(QSize(150, 150))
+        btn.setFixedSize(160, 160)
         btn.setToolTip(name)
         btn.clicked.connect(callback)
         return btn
@@ -115,3 +124,19 @@ class MainWindow(QWidget):
 
     def on_bank(self):
         logging.info("Bank geöffnet")
+
+    def start_day(self):
+        logging.info("Tagesbeginn wird gestartet...")
+
+        wetter = self.weather_system.get_today_weather()
+        logging.info(f"Heutiges Wetter: {wetter}")
+
+        einnahmen = 25.0
+        self.economy.earn(einnahmen)
+        logging.info(f"Umsatz heute: {einnahmen:.2f} €")
+
+        self.weather_system.advance_day()
+        self.storage_system.advance_day()
+        self.supermarket.generate_new_prices()
+
+        logging.info("Tag abgeschlossen")
