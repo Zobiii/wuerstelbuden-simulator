@@ -84,6 +84,16 @@ class DayScreen(QWidget):
             self.order_label.setText("Bitte etwas auswählen.")
             return
 
+        correct_item = self.customers[self.current_index]
+
+        if self.selected_item != correct_item:
+            logging.info(
+                f"Falscher Artikel geliefert! Gewünscht war: {correct_item}, gegeben: {self.selected_item}"
+            )
+            self.failed_sales += 1
+            self.animate_customer_exit()
+            return
+
         if self.storage.items[self.selected_item]:
             self.storage.items[self.selected_item].pop(0)
             self.economy.earn(self.prices[self.selected_item])
