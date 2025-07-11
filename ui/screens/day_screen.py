@@ -102,12 +102,11 @@ class DayScreen(QWidget):
         path = os.path.join("resources/customer", customer_img)
         pixmap = create_rounded_framed_pixmap(path, self.customer_label.size(), 60)
 
-        self.customer_label.setPixmap(pixmap)
-        self.customer_label.move(-150, 100)
+        QTimer.singleShot(0, lambda: self.prepare_customer(pixmap))
 
         self.order_label.setText(f"Kunde möchte {self.customers[self.current_index]}")
 
-        self.animate_customer_enter()
+        # self.animate_customer_enter()
 
     def animate_customer_enter(self):
         anim = QPropertyAnimation(self.customer_label, b"geometry")
@@ -128,3 +127,10 @@ class DayScreen(QWidget):
         self.exit_anim = anim
 
         QTimer.singleShot(600, self.next_customer)
+
+    def prepare_customer(self, pixmap):
+        self.customer_label.hide()
+        self.customer_label.setPixmap(pixmap)
+        self.customer_label.move(-150, 100)
+        self.customer_label.show()
+        self.animate_customer_enter()
