@@ -119,7 +119,7 @@ class MainWindow(QWidget):
 
     def on_storage(self):
         logging.info("Lager geöffnet")
-        self.storage_screen = StorageScreen(self.storage_system)
+        self.storage_screen = StorageScreen(self.storage_system, self.prices)
         self.storage_screen.show()
 
     def on_supermarket(self):

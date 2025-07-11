@@ -1,14 +1,24 @@
-from PyQt6.QtWidgets import QWidget, QVBoxLayout, QLabel, QPushButton
+from PyQt6.QtWidgets import (
+    QWidget,
+    QVBoxLayout,
+    QLabel,
+    QPushButton,
+    QHBoxLayout,
+    QLineEdit,
+)
 from PyQt6.QtCore import Qt
 from datetime import date
+import logging
 
 
 class StorageScreen(QWidget):
-    def __init__(self, storage_system):
+    def __init__(self, storage_system, prices):
         super().__init__()
         self.storage = storage_system
+        self.prices = prices
         self.setWindowTitle("Lagerbestand")
         self.setFixedSize(400, 400)
+        self.init_ui()
 
         self.layout = QVBoxLayout()
         self.title = QLabel("Lagerbestand")
@@ -43,3 +53,33 @@ class StorageScreen(QWidget):
     def advance_day(self):
         self.storage.advance_day()
         self.update_display()
+
+    def init_ui(self):
+        layout = QVBoxLayout()
+        layout.setSpacing(10)
+
+        for item, stack in self.storage.items.items():
+            hbox = QHBoxLayout()
+
+            label = QLabel(f"{item} ({len(stack)}x)")
+            label.setFixedWidth(150)
+            hbox.addWidget(label)
+
+            price_edit = QLineEdit(str(self.prices.get(item, 0.0)))
+            price_edit.setFixedWidth(80)
+            price_edit.editingFinished.connect(
+                lambda i=item, pe=price_edit: self.update_price(i, pe)
+            )
+            hbox.addWidget(price_edit)
+
+            layout.addLayout(hbox)
+
+        self.setLayout(layout)
+
+    def update_price(self, item, field):
+        try:
+            new_prices = float(field.text().replace(",", "."))
+            self.prices[item] = round(new_prices, 2)
+            logging.info(f"Neuer Preis für {item}: {self.prices[item]}€")
+        except ValueError:
+            logging.info("Ungültiger Preis eingegeben")
