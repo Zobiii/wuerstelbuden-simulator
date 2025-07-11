@@ -9,10 +9,11 @@ from PyQt6.QtWidgets import (
 )
 from PyQt6.QtCore import Qt, QPropertyAnimation, QRect, QEasingCurve, QTimer
 from PyQt6.QtGui import QPixmap
-import random
+import random, logging
 import os
 
 from utils.image_tools import create_rounded_framed_pixmap
+from ui.screens.day_summary_screen import SummaryScreen
 
 
 class DayScreen(QWidget):
@@ -27,6 +28,10 @@ class DayScreen(QWidget):
         self.storage = storage
         self.economy = economy
         self.prices = prices
+
+        self.successful_sales = 0
+        self.failed_sales = 0
+        self.earned = 0.00
 
         self.customers = self.customer_logic.simulate_day(weather, prices)
         random.shuffle(self.customers)
@@ -82,8 +87,12 @@ class DayScreen(QWidget):
         if self.storage.items[self.selected_item]:
             self.storage.items[self.selected_item].pop(0)
             self.economy.earn(self.prices[self.selected_item])
+            self.earned += self.prices[self.selected_item]
+            logging.info(self.earned)
+            self.successful_sales += 1
             self.order_label.setText(f"{self.selected_item} verkauft!")
         else:
+            self.failed_sales += 1
             self.order_label.setText(f"{self.selected_item} ist ausverkauft")
 
         self.animate_customer_exit()
@@ -95,6 +104,7 @@ class DayScreen(QWidget):
         if self.current_index >= len(self.customers):
             self.order_label.setText("Tag abgeschlossen!")
             self.customer_label.clear()
+            self.show_summary()
             self.send_button.setEnabled(False)
             return
 
@@ -134,3 +144,17 @@ class DayScreen(QWidget):
         self.customer_label.move(-150, 100)
         self.customer_label.show()
         self.animate_customer_enter()
+
+    def show_summary(self):
+        logging.info("wird aufgerufen")
+        summary_data = {
+            "Kunden heute": len(self.customers),
+            "Verkäufe": self.successful_sales,
+            "Abgelehnt": self.failed_sales,
+            "Einnahmen": f"{self.earned:.2f}€",
+        }
+
+        self.summary_screen = SummaryScreen(summary_data)
+        self.summary_screen.show()
+        logging.info("zeigt an")
+        self.close()
