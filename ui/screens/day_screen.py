@@ -67,6 +67,18 @@ class DayScreen(QWidget):
             self.buttons_layout.addWidget(btn)
         self.layout.addLayout(self.buttons_layout)
 
+        self.balance_checkbox = QPushButton("Kontostand live anzeigen")
+        self.balance_checkbox.setCheckable(True)
+        self.balance_checkbox.toggled.connect(self.toggle_balance_display)
+        self.layout.addWidget(
+            self.balance_checkbox, alignment=Qt.AlignmentFlag.AlignCenter
+        )
+
+        self.balance_label = QLabel(f"Kontostand: {self.economy.get_balance():.2f}€")
+        self.balance_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        self.balance_label.setVisible(False)
+        self.layout.addWidget(self.balance_label)
+
         # Abschicken
         self.send_button = QPushButton("🧾 Abschicken")
         self.send_button.clicked.connect(self.send_order)
@@ -101,6 +113,11 @@ class DayScreen(QWidget):
             logging.info(self.earned)
             self.successful_sales += 1
             self.order_label.setText(f"{self.selected_item} verkauft!")
+
+            if self.balance_checkbox.isChecked():
+                self.balance_label.setText(
+                    f"Kontostand: {self.economy.get_balance():.2f}€"
+                )
         else:
             self.failed_sales += 1
             self.order_label.setText(f"{self.selected_item} ist ausverkauft")
@@ -129,24 +146,28 @@ class DayScreen(QWidget):
         # self.animate_customer_enter()
 
     def animate_customer_enter(self):
+        r = random.randint(-200, 200)
+        logging.info(f"Enter {r}")
         anim = QPropertyAnimation(self.customer_label, b"geometry")
-        anim.setDuration(1000)
-        anim.setStartValue(QRect(-150, 100, 120, 120))
-        anim.setEndValue(QRect(240, 100, 120, 120))
-        anim.setEasingCurve(QEasingCurve.Type.OutCubic)
+        anim.setDuration(2000)
+        anim.setStartValue(QRect(-150, r, 120, 120))
+        anim.setEndValue(QRect(240, 50, 120, 120))
+        anim.setEasingCurve(QEasingCurve.Type.OutExpo)
         anim.start()
         self.enter_anim = anim
 
     def animate_customer_exit(self):
+        r = random.randint(-200, 200)
+        logging.info(f"Exit {r}")
         anim = QPropertyAnimation(self.customer_label, b"geometry")
-        anim.setDuration(1000)
-        anim.setStartValue(QRect(240, 100, 120, 120))
-        anim.setEndValue(QRect(700, 100, 120, 120))
-        anim.setEasingCurve(QEasingCurve.Type.OutCubic)
+        anim.setDuration(2000)
+        anim.setStartValue(QRect(240, 50, 120, 120))
+        anim.setEndValue(QRect(700, r, 120, 120))
+        anim.setEasingCurve(QEasingCurve.Type.InExpo)
         anim.start()
         self.exit_anim = anim
 
-        QTimer.singleShot(600, self.next_customer)
+        QTimer.singleShot(2000, self.next_customer)
 
     def prepare_customer(self, pixmap):
         self.customer_label.hide()
@@ -168,3 +189,6 @@ class DayScreen(QWidget):
         self.summary_screen.show()
         logging.info("zeigt an")
         self.close()
+
+    def toggle_balance_display(self):
+        self.balance_label.setVisible(True)
